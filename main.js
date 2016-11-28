@@ -9,43 +9,30 @@ function control() {
 
     fs.readFile('test', 'UTF-8', function (err, data) {
 
-            var text = data.toString().split('');
-
-            for (var i = 0; i < text.length - 1 || stack.length > 0;) {
-
-                if (stack[stack.length - 1] === text[i] && text[i] === '#') {
-
-                    console.log('accept');
-                    return
-
-                } else if (stack[stack.length - 1] === text[i]) {
-                    console.log(stack, 1, text[i] + '匹配成功')
+            var inputs = data.toString().split('');
+            while (stack.length != 0) {
+                if (inputs[0] === stack[stack.length - 1] && inputs[0] === '#') {
+                    console.log('Accept');
+                    return;
+                } else if (inputs[0] === stack[stack.length - 1]) {
+                    console.log(stack, inputs.join(''), inputs[0] + '匹配成功');
                     stack = stack.slice(0, stack.length - 1);
-                    i++;
-
+                    inputs = inputs.slice(1, inputs.length);
                 } else {
-
                     var col = nonterminator.indexOf(stack[stack.length - 1]);
-                    var row = terminator.indexOf(text[i]);
-                    var tig = analysisTable[col][row];
-
-                    if (tig === 'error') {
-
-                        console.log('error')
+                    var row = terminator.indexOf(inputs[0]);
+                    var tag = analysisTable[col][row];
+                    if (tag === 'error') {
+                        console.log('error');
                         return
-
-                    } else if (tig === '$') {
-
-                        console.log(stack, 1, '$')
+                    } else if (tag === '$') {
+                        console.log(stack, inputs.join(''), '$');
                         stack = stack.slice(0, stack.length - 1);
-
                     } else {
-
-                        console.log(stack, 1, tig);
+                        console.log(stack, inputs.join(''), tag);
                         stack = stack.slice(0, stack.length - 1);
-                        for (var j = tig.length - 1; j >= 0; j--) {
-                            stack += tig[j];
-
+                        for (var j = tag.length - 1; j >= 0; j--) {
+                            stack += tag[j];
                         }
                     }
                 }
