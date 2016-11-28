@@ -2,9 +2,60 @@ var fs = require('fs');
 function control() {
     var terminator = ['+', '*', 'i', '<', '>', '#'];
     var nonterminator = ['E', 'T', 'K', 'F', 'M'];
-    var analysisTable = [['error', 'error', 'TK', 'TK', 'error', 'error'], ['error', 'error', 'FM', 'FM', 'error', 'error'],
-        ['+TK', 'error', 'error', 'error', '$', '$'], ['error', 'error', 'i', '<E>', 'error', 'error'],
-        ['$', '*FM', 'error', 'error', '$', '$']];
+    var FI = [['<', 'i'], ['<', 'i'], ['$', '+'], ['<', 'i'], ['$', '*']];
+    var FO = [['#', '>'], ['#', '>', '+'], ['#', '>'], ['#', '>', '+', '*'], ['#', '>', '+']];
+    fs.readFile('production', 'UTF-8', function (err, data) {
+        var test = data.toString().split('->');
+        test = test.toString().split('\n');
+    })
+    var analyse = {
+        'Ei': 'TK',
+        'E<': 'TK',
+        'Ti': 'FM',
+        'T<': 'FM',
+        'K+': '+TK',
+        'Fi': 'i',
+        'F<': '<E>',
+        'M*': '*FM'
+    }
+//定义分析表
+    var analysisTable = new Array;
+    for (i = 0; i < 100; i++) {
+        analysisTable[i] = new Array();
+    }
+
+    for (var i = 0; i < nonterminator.length; i++) {
+
+        if (FI[i].find(tag1=>FI[i].some(b=>b === '$'))) {
+
+            var newF = (FI[i].concat(FO[i])).filter(b=>b != '$');
+            for (var j = 0; j < terminator.length; j++) {
+
+                if (FI[i].find(tag=>FI[i].some(b=>b === terminator[j]))) {
+
+                    analysisTable[i][j] = analyse[nonterminator[i].concat(terminator[j])];
+                } else if (newF.find(tag=>newF.some(b=>b === terminator[j]))) {
+                    analysisTable[i][j] = '$';
+                } else {
+                    analysisTable[i][j] = 'error';
+                }
+            }
+        } else {
+
+            for (var j = 0; j < terminator.length; j++) {
+
+                if (FI[i].find(tag=>FI[i].some(b=>b === terminator[j]))) {
+                    analysisTable[i][j] = analyse[nonterminator[i].concat(terminator[j])];
+                } else {
+                    analysisTable[i][j] = 'error';
+                }
+
+            }
+        }
+
+
+    }
+    //对字符串的分析过程
     var stack = '#E';
 
     fs.readFile('test', 'UTF-8', function (err, data) {
@@ -39,5 +90,11 @@ function control() {
             }
         }
     )
+}
+
+function findWord(analyse, A, a) {
+    if (A.concat(a) === analyse.key) {
+        return analyse.value;
+    }
 }
 control();
